@@ -13,7 +13,7 @@ namespace OptimizeSvchost
     {
         static String currentVersion;
 
-        static void JustWindows1709()
+        static void UpperWindows1709()
         {
             Console.WriteLine(@"==========================ERROR==============================");
             Console.WriteLine(@"=                                                           =");
@@ -56,9 +56,11 @@ namespace OptimizeSvchost
             {
                 RegistryKey regInfo = Registry.LocalMachine.OpenSubKey(registryPath, RegistryKeyPermissionCheck.ReadWriteSubTree);
                 regInfo.SetValue(@"SvcHostSplitThresholdInKB", value, RegistryValueKind.DWord);
+
                 Console.WriteLine("설정이 완료되었습니다: " + toHex(value));
                 Console.WriteLine("윈도우를 재시작하십시오.");
                 Console.ReadKey();
+
                 regInfo.Close();
             }
             catch (NullReferenceException ex)
@@ -83,7 +85,7 @@ namespace OptimizeSvchost
 
             if (!IsWindows10Creators())
             {
-                JustWindows1709();
+                UpperWindows1709();
                 return;
             }
 
@@ -127,11 +129,13 @@ namespace OptimizeSvchost
         static bool IsAdministrator()
         {
             WindowsIdentity windowsIdentity = WindowsIdentity.GetCurrent();
+
             if (windowsIdentity != null)
             {
                 WindowsPrincipal windowsPrincipal = new WindowsPrincipal(windowsIdentity);
                 return windowsPrincipal.IsInRole(WindowsBuiltInRole.Administrator);
             }
+
             return false;
         }
 
@@ -142,7 +146,8 @@ namespace OptimizeSvchost
             string path = @"SOFTWARE\Microsoft\Windows NT\CurrentVersion";
             string releaseId = Registry.LocalMachine.OpenSubKey(path).GetValue("ReleaseId").ToString();
             currentVersion = os.VersionString + releaseId;
-            if (releaseId == "1709")
+
+            if (Int32.Parse(releaseId) >= 1709)
                 return true;
             return false;
         }
